@@ -1,0 +1,25 @@
+#Heroku pode fazer sozinho, mas vamos aprender automatizar pra outras coisas no futuro
+name: Deploy on Heroku
+on:
+  push:
+  #No lugar de [push] -> Separamos/abrimos o [] agora pra selecionar a branch
+    branches:
+    - main
+    #Ao fazer pushs na branch main, antes era só [push] pq era qualquer push, assim selecionamos a branch
+jobs:
+  HerokuDeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+      #Preciso pegar o repositorio pra poder passar ele pra algum lugar né
+        uses: actions/checkout@v3
+      - name: Deploy app on heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        #Alguem criou uma action que faz esse deploy, vamos usar ela e vamos configurar igual a documentação dele!!
+        #Não se prender a isso, ver na documentação como faz e usar
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}} #Criaria a chave com esse nome
+          heroku_app_name: ${{secrets.HEROKU_APP_NAME}} #Cuidado que tem que ser um nome valido, heroku é chato com isso
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          branch: 'main' #qualquer coisa tentar com "main"
+          #Como é algo que precisa esconder, vamos criar elas dentro do github action, em action secrets/new secret e chamar aqui

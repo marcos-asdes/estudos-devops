@@ -1,0 +1,28 @@
+#Arquivos yml, a indentação importa 
+#Exemplo inicial com pull request simples dando um console 
+name: Github Action Hello World
+#Nome que eu escolher
+on: [push]
+#Sempre que eu fizer um push, vai rodar isso
+jobs:
+#Equivalente a um service do docker, fará algo
+  Hello-World:
+  #Nome do trabalho
+    runs-on: ubuntu-latest
+    #Vai rodar numa maquina ubuntu lá do Github na ultima versão - maquinas disponiveis aparecem na aba gitgub action dentro do github.com
+    #Daqui pra baixo, tá dentro do terminal do ubuntu
+    steps:
+    #Passo a passo que queremos que ele faça
+      - run: echo "Olá, estou funcionando ao fazer um push"
+      #o - é pra dizer que quer executar, o echo é um print do console
+      - name: Checkout repository code
+      #Podemos dar um nome a um determinado comando, serve pra organizar e ver o passo a passo dentro do action
+        uses: actions/checkout@v3
+        #Vai usar algo que alguém já criou, como usar uma biblioteca, mas que fazem coisas para o action
+        #Nesse caso, esse checkout pega todos os arquivos do repositorio e passa para dentro da mquina do ubuntu que reservamos acima
+        #ideal é ir ver a docmentação de cada action
+      - name: List files
+      #Passou os arquivos, mas pra onde? Onde estamos no terminal? Vamos listar os arquivos só pra ver
+        run: ls ${{ github.workspace }}
+        #Listar o que está dentro da pasta workspace[padrão] do github, o ${{}} serve pra executar variaveis dentro do github, que ele mesmo dá, o workspace é uma delas mas tem várias
+        #O Workspace do github é pra onde meus arquivos vão, acredito que seja: home/runner/work/repositorio_name/nome_pasta

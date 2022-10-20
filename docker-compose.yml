@@ -1,0 +1,56 @@
+#Vai ligar os Dockerfile 
+
+services: 
+  postgres_drivenops_db:
+    image: postgres
+    container_name: postgres_drivenops_db
+    #comum ser igual do de cima
+    restart: always
+    #se der xabu, ele reinicia
+    ports: 
+      - 4457:5432
+    env_file:
+      - ./back-end/.env
+    volumes:
+      - pg_drivenops_db:/var/lib/postgresql/data
+    #Essa é a pasta onde o postgres armazena o banco de dados
+    #Lá é onde queremos armazenar as coisas (nosso volume serve pra isso)
+  node_drivenops_app:
+    container_name: node_drivenops_app
+    build: ./back-end
+    #ao invés de fazer por uma imagem, fazer do nosso dockerfile
+    image: node_drivenops_app_image
+    #É apenas o nome da nossa imagem agora
+    ports:
+      - 5000:5000
+    depends_on:
+      - postgres_drivenops_db
+    #Esse back depende do db para funcionar
+    env_file:
+      - ./back-end/.env
+  react_drivenops_app:
+    container_name: react_drivenops_app
+    build: ./front-end
+    image: react_drivenops_app_image
+    volumes:
+      - build_react:/var/www/html
+  nginx_drivenops_app:
+    container_name: nginx_drivenops_app
+    build: ./nginx
+    image: nginx_drivenops_app_image
+    ports:
+      - 80:80
+    #80 pois será da amazon lá no futuro
+    volumes:
+      - build_react:/var/www/html 
+    #Queremos usar o build que criamos
+    depends_on:
+      - postgres_drivenops_db
+      - node_drivenops_app
+      - react_drivenops_app
+volumes:
+  pg_drivenops-db:
+  build_react:
+#Tem que dizer para o docker os volumes depois
+
+

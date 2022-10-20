@@ -1,0 +1,37 @@
+#primeiro entrarmos no setting/branches lá do repository e configuramos algumas coisas (que são opcionais)
+#Bloquear a branch main e só deixar push lá por pullrequest
+#Pullrequest só aceito após pessoas validarem o código 
+#Nosso arquivo passar nos testes <- Isso é que vamos focar
+#O De cima é: Require status checks to pass before merging <-- Marcar essa opção
+
+name: Pull Request Validator
+on: [pull_request] #Vai rodar sempre que alguém tentar um pull request
+jobs:
+  PullRequest: #Nome dado a esse job
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3 #Passar os arquivos pra maquina pra testar né
+    - name: Make a new envfile #Nosso arquivo necessita do env para funcionar né
+      uses: SpicyPizza/create-envfile@v1.3
+      with:
+        envkey_POSTGRES_USER: "postgres" #com aspas DUPLA
+        envkey_POSTGRES_PASSWORD: "postgres"
+        envkey_POSTGRES_DB: "pg_drivenops_db"
+        envkey_DATABASE_URL: "postgresql://postgres:postgres@postgres_drivenops_db:5432/pg_drivenops_db"
+        #Ou fazemos tudo lá dentro do github, mas como o .env.test costuma mostrar, pode deixar aqui
+        envkey_NOMEDAENV: ${{ secrets.NOMEDAENV }} #Repete isso para cada env desejada
+        file_name: .env.test #dará esse nome após criar o env
+      - name: Run tests
+        #Até agora, fizemos o .env e docker-compose, agora estamos falando de tests, bom separar
+        #Criar um docker-compose-test.yml 
+        run: docker-compose -f docker-compose-test.yml run node_drivenops_app npm run test
+        #Leia-se: rodar o docker-compose a partir do file docker-compose-test.yml e depois rodar o node (Dockerfile, especificado no docker-compose-test)
+        #Apos rodar o Dockerfile e criar o back, sobrescreve o comando CMD desse para npm run test (feito no package.json)
+
+
+#Bem, frank teve alguns erros na hora de fazer isso, suas soluções:
+## Arquivo Dockerfile back: adicionar RUN npx prisma generete após install -> algum motivo não tava indo normal só com o npm run test
+### dotenv -e do test não funcionando, baixou uma biblioteca chamada cross-env que resolveu e adicionou test do package:
+### ... prisma migrate dev && dotenv -e .env.test cross-env NODE_OPTIONS=--experimental-vm-modules jest -- -i"
+#### env da configuração do docker, e não da minha maquina
